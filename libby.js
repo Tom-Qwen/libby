@@ -1,16 +1,22 @@
-/* Working Title - Libby - expansion on lib, short for libary. - spelling is now *Libi*
+/* Libi Webflow Libray by Tom Qwen (2022) - v.0.2
 
-Libby is a WIP Webflow Library built by Tom Qwen. 
-
-/* To do list -  CMS Next & Previous Buttons, Table of Contents, word counter,
-Mirror Click Events, Copy input value to span, Basic local memory, Social Share Buttons (pull from Recent Crypto), 
-import content from other pages - possibly widgets?, remember tab when switching page? (memory), redirect
+/* To do list -  Table of Contents, word counter, Mirror Click Events, Copy input value to span, Basic local memory, 
+Social Share Buttons (pull from Recent Crypto), import content from other pages, remember tab when switching page? (memory), redirect
 
 // Send & receive data needs to have a multiple case use catch, unsure whats the best way to handle it, thinking a seperate data attribute. 
 
+/* Style */
+// Prevents flitering when loading new content 
+
+var styleEl = document.createElement('style'), styleSheet;
+            document.head.appendChild(styleEl);
+            styleSheet = styleEl.sheet;
+            styleSheet.insertRule('[does="add-widgets"] { opacity: 0; }', 0);
+            styleSheet.insertRule('[does="display-read-time"] { opacity: 0;}', 0);
+
 /* Core Features */
 // Store url parameters
-window.onload = function() {
+document.addEventListener('DOMContentLoaded', function() {
 
 try {
 	      
@@ -74,8 +80,135 @@ if (does_cmsSlider.length) {
 }
 	
 // CMS Next/Previous Buttons
+// Need confirming for mutliple uses per page, better safe than sorry. 
+	
+var does_nextPrev    =   document.querySelector('[does="next-and-previous"]');
+if (does_nextPrev) { var does_allLinks    =   does_nextPrev.querySelectorAll('a'); }
+	
+var does_buttons     =   document.querySelectorAll('a');
+	
+if (does_nextPrev) { var does_currentPage =   does_nextPrev.querySelector('[aria-current="page"]'); }
+	
+if (does_allLinks) {
+
+for (i = 0; i < does_allLinks.length; i++) {
+	
+	console.log('Search for next/previous article. . . ')
+	
+	if (does_allLinks[i] == does_currentPage) {
+		
+		// console.log('Article Found. . . ' + does_allLinks.length + ' ' + i)
+		
+		var total = does_allLinks.length;
+			
+                try {
+		
+		        does_buttons[1].href = does_allLinks[i - 1].href;
+			
+		} catch {
+									
+		         does_buttons[1].href = does_allLinks[does_allLinks.length - 1].href;	
+			
+	        }
+			
+		try {
+		
+		        does_buttons[0].href = does_allLinks[i + 1].href;
+		
+		} catch {
+			
+		         does_buttons[0].href = does_allLinks[0].href;	
+						
+	        }
+		
+		    break;
+
+		
+		}
+							
+	
+}
+			
+	}
+	
+// CMS Widgets 
+// Need to add external widgets via URL detection. 
+	
+let does_widgetTarget = document.querySelectorAll('[does="add-widgets"]');
+		
+if(does_widgetTarget.length) {
+		
+	for (i = 0; i < does_widgetTarget.length; i++) {
+		
+		does_widgetTarget[i].style.opacity = 0;
+		
+		var regex = /\[(.*?)\]/g; 
+		var widgetTags = does_widgetTarget[i].innerHTML.match(regex);	
+		
+		try { 
+		
+		     for(t = 0; t < widgetTags.length; t++) {
+			     
+			     var widgetTargetUpdate = does_widgetTarget[i].innerHTML;
+			     			     
+			     var tags = widgetTags[t].slice(1, -1).split('-');
+			     			     
+			     if (tags[1] == 'url') { 
+				     
+				if (debug) { console.log('Searching for external widget. . . Featured not implimented.') }
+				     			     				     
+			     } else {
+				     
+				if (debug) { console.log('Searching for on page widget') }
+
+				 var widgetFound = document.querySelectorAll('[does-is-widget="'+ [tags[1]] +'"]');
+				     
+				 if (widgetFound.length > 1) {
+					 
+					 console.log(widgetTags[t]);
+					 console.log([tags[2] - 1])
+					 console.log(widgetFound[tags[2] - 1]);
+					 
+					 var targetFound = widgetFound[tags[2] - 1];
+					 
+					 console.log(widgetFound[0])
+					 console.log(widgetFound[1])
+
+				     widgetTargetUpdate = widgetTargetUpdate.replaceAll(widgetTags[t], targetFound.innerHTML);
+					 
+				     does_widgetTarget[i].innerHTML = widgetTargetUpdate;
+ 
+				 } else { 
+				 
+				     console.log('single widget found... replacing widget tag with widget.')
+					 
+				     console.log(widgetFound[0])
+					 					 
+				     widgetTargetUpdate = widgetTargetUpdate.replaceAll(widgetTags[t], widgetFound[0].innerHTML);
+					 
+				     does_widgetTarget[i].innerHTML = widgetTargetUpdate;
+
+				 }
+				     
+			     }
+			       
+		     }
+			
+		} catch(error) {
+			
+			console.log('No tags found in rich text.')
+			
+		}
+		
+		does_widgetTarget[i].style.opacity = 1;
+			
+	}
+	
+} 
+
 
 /* E-Commerce */
+
 
 // Direct add to cart link for prodcuts. 
 // Add the URL parameter '?add-to-cart=true'
@@ -129,6 +262,8 @@ if (does_emptyBtn.length) {
 	   
    }
 	
+	
+	
 // Add All Items to Cart.
 // This work by placing the does="add-all-to-cart on a button that directly share a parent with the collection list wrapper of the targeted products. 
 	
@@ -168,6 +303,8 @@ if (does_addAllCart.length) {
 	// Refactor for understanding 
 	// Use count for letter counter too, letter counter will be targetable and mutliple per page.
 	
+
+	
 let does_readTime        = document.querySelector('[does="measure-read-time"]');
 let does_displayReadTime = document.querySelector('[does="display-read-time"]');
 
@@ -193,12 +330,17 @@ function cleanText(e) {
 	
 }
     
-var words = cleanText(does_readTime);
-var count = words.split(' ').length;
+if (does_displayReadTime) { 
 	
-if (does_displayReadTime) { does_displayReadTime.textContent = Math.round(count / 200).toFixed(); }
+	var words = cleanText(does_readTime);
+        var count = words.split(' ').length;
+	
+	does_displayReadTime.textContent = Math.round(count / 200).toFixed(); 
 
-	
+	does_displayReadTime.style.opacity = 1;
+
+}
+
 // Copy input to span
 		
 // Mirror Click Events
@@ -298,4 +440,4 @@ if (does_sendsData.length) {
 
 
 	
-}
+}, false);
