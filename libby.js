@@ -83,10 +83,11 @@ if (does_cmsSlider.length) {
 // Need confirming for mutliple uses per page, better safe than sorry. 
 	
 var does_nextPrev    =   document.querySelector('[does="next-and-previous"]');
+var does_nextBtn    =   document.querySelector('[does="next-button"]');
+var does_prevBtn   =   document.querySelector('[does="previous-button"]');
+
 if (does_nextPrev) { var does_allLinks    =   does_nextPrev.querySelectorAll('a'); }
-	
-var does_buttons     =   document.querySelectorAll('a');
-	
+		
 if (does_nextPrev) { var does_currentPage =   does_nextPrev.querySelector('[aria-current="page"]'); }
 	
 if (does_allLinks) {
@@ -103,21 +104,21 @@ for (i = 0; i < does_allLinks.length; i++) {
 			
                 try {
 		
-		        does_buttons[1].href = does_allLinks[i - 1].href;
+		        does_prevBtn[1].href = does_allLinks[i - 1].href;
 			
 		} catch {
 									
-		         does_buttons[1].href = does_allLinks[does_allLinks.length - 1].href;	
+		         does_prevBtn[1].href = does_allLinks[does_allLinks.length - 1].href;	
 			
 	        }
 			
 		try {
 		
-		        does_buttons[0].href = does_allLinks[i + 1].href;
+		        does_nextBtn[0].href = does_allLinks[i + 1].href;
 		
 		} catch {
 			
-		         does_buttons[0].href = does_allLinks[0].href;	
+		         does_nextBtn[0].href = does_allLinks[0].href;	
 						
 	        }
 		
